@@ -3,6 +3,7 @@ from io import BytesIO
 
 import requests
 from requests import RequestException
+from threading import Thread
 
 valid_extensions = ['rgb', 'gif', 'pbm', 'pgm', 'ppm', 'tiff', 'rast', 'xbm', 'jpeg', 'bmp', 'png', 'webp', 'exr']
 
@@ -19,6 +20,21 @@ class ImageDownloader:
             return content
         except RequestException as e:
             raise RequestException(f'Ooops! an error occurred while processing the image {url}')
+
+    """
+    :param url: URL for the resource
+    :return: bytes array for the image
+    """
+    def get_bytes_concurrent(self, url: str) -> bytes:
+        try:
+            num_dl_threads = 10
+            for _ in range(num_dl_threads):
+                t = Thread(target=self.get_bytes, args=(url,))
+                t.start()
+
+        except RequestException as e:
+            raise RequestException(f'Ooops! an error occurred while processing the image {url}')
+
 
     def is_image(self, content) -> bool:
         """
